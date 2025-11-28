@@ -31,6 +31,7 @@
   <label>Kabupaten/Kota (Jawa Tengah)</label>
   <select id="kabupaten" required>
     <option value="">-- Pilih --</option>
+    <option>00 - PROVINSI</option>
     <option>01 - CILACAP</option>
     <option>02 - BANYUMAS</option>
     <option>03 - PURBALINGGA</option>
@@ -80,8 +81,6 @@
   <button type="button" onclick="tambahKeKeranjang()">Tambah Produk ke Keranjang</button>
 </form>
 
-
-<!-- ================= KERANJANG ================= -->
 <div class="keranjang">
   <h2>Keranjang Produk</h2>
   <table>
@@ -98,8 +97,6 @@
   <button type="button" onclick="simpanKeLaporan()">Tambah ke Laporan</button>
 </div>
 
-
-<!-- ================= LAPORAN ================= -->
 <div class="report">
   <h2>Laporan Pesanan</h2>
 
@@ -119,7 +116,6 @@
 
   <button onclick="downloadCSV()">Download CSV</button>
 </div>
-
 
 <script>
 const produkList = {
@@ -147,7 +143,6 @@ const produkList = {
   "Wedang Bandrek": 15000
 };
 
-// Isi dropdown produk
 const produkSelect = document.getElementById("produk");
 for (let p in produkList) {
   let opt = document.createElement("option");
@@ -166,7 +161,6 @@ function hitungTotal() {
 produkSelect.onchange = hitungTotal;
 document.getElementById("jumlah").oninput = hitungTotal;
 
-// ================= KERANJANG MULTI PRODUK =================
 let keranjang = [];
 
 function tambahKeKeranjang() {
@@ -197,7 +191,6 @@ function updateTabelKeranjang() {
   });
 }
 
-// ================= SIMPAN KE LAPORAN =================
 function simpanKeLaporan() {
   if (keranjang.length === 0) {
     alert("Keranjang masih kosong!");
@@ -223,12 +216,24 @@ function simpanKeLaporan() {
     tbody.appendChild(tr);
   });
 
+  // ================= KIRIM DATA KE GOOGLE SPREADSHEET =================
+  fetch("https://script.google.com/macros/s/AKfycbywWqm73OQDS8kCvCMmQnFIfXBO-cfj2ePFDpJOB9K6C1dP-NxykA1zfSS7JdPldFnd4A/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nama: nama,
+      hp: hp,
+      kabupaten: kab,
+      pesanan: keranjang
+    })
+  });
+
   keranjang = [];
   updateTabelKeranjang();
-  alert("Pesanan berhasil disimpan ke laporan!");
+  alert("Pesanan berhasil disimpan dan dikirim ke Spreadsheet!");
 }
 
-// ================= DOWNLOAD CSV =================
 function downloadCSV() {
   let csv = "Nama,HP,Kabupaten,Produk,Jumlah,Total\n";
 
